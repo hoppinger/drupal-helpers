@@ -19,3 +19,17 @@ function hoppinger_permissions_ensure_permissions($role, $perms = array()) {
     user_role_grant_permissions($rid, $perms);
   }
 }
+
+function hoppinger_permissions_get_permissions() {
+  $args = func_get_args();
+  array_unshift($args, 'hoppinger_permissions');
+
+  $result = call_user_func_array('module_invoke_all', $args);
+
+  $hook = array_shift($args);
+  $type = array_unshift($args);
+
+  drupal_alter($hook, $result, $type, $args);
+
+  return $result;
+}
