@@ -1,1 +1,65 @@
 <?php
+
+function hoppinger_theme_setup($default_theme, $admin_theme = 'seven') {
+  $enabled_themes = array($default_theme, $admin_theme);
+  _hoppinger_theme_resolve_theme_dependencies($enabled_themes);
+
+  variable_set('theme_default', $default_theme);
+  variable_set('admin_theme', $admin_theme);
+  variable_set('node_admin_theme', TRUE);
+
+  _hoppinger_theme_setup_theme_blocks($default_theme);
+  _hoppinger_theme_setup_theme_blocks($admin_theme);
+}
+
+function _hoppinger_theme_resolve_theme_dependencies($themes) {
+  $enable = array();
+  $disable = array();
+  foreach (list_themes(TRUE) as $key => $info) {
+    if (empty($info->status) && in_array($key, $themes)) {
+      $enable[] = $key;
+    }
+    if (!empty($info->status) && !in_array($key, $themes)) {
+      $disable[] = $key;
+    }
+  }
+
+  theme_enable($enable);
+  theme_disable($disable);
+}
+
+function _hoppinger_theme_setup_theme_blocks($theme_name) {
+  $values = array(
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $theme_name,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+  );
+
+  $key_keys = array('module', 'delta', 'theme');
+  foreach ($values as $record) {
+    $key = array();
+    foreach ($key_keys as $key_key) {
+      $key[$key_key] = $record[$key_key];
+      unset($record[$key_key]);
+    }
+
+    $query = db_merge('block')
+      ->key($key)
+      ->fields($record)
+      ->execute();
+  }
+
+    // Turn off Help block.
+  db_update('block')
+    ->fields(array('region' => -1))
+    ->condition('delta', 'help')
+    ->condition('theme', $theme_name)
+    ->execute();
+}
