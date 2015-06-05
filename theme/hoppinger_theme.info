@@ -1,0 +1,5 @@
+name = Theme
+package = "Hoppinger: Helpers"
+
+core = 7.x
+
