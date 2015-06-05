@@ -1,0 +1,6 @@
+name = Language
+package = "Hoppinger: Helpers"
+
+core = 7.x
+
+dependencies[] = locale

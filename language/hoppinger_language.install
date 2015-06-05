@@ -1,0 +1,53 @@
+<?php
+
+function hoppinger_language_setup($enabled_languages) {
+  $languages = language_list();
+
+  foreach ($languages as $language) {
+    if (!in_array($language->language, $enabled_languages)) {
+      _hoppinger_language_remove_language($language->language);
+    }
+  }
+
+  foreach ($enabled_languages as $langcode) {
+    if (!isset($languages[$langcode])) {
+      locale_add_language($langcode);
+    }
+  }
+
+  $languages = language_list();
+  variable_set('language_default', $languages[$enabled_languages[0]]);
+}
+
+function _hoppinger_language_remove_language($langcode) {
+  // Remove translations first.
+  db_delete('locales_target')
+    ->condition('language', $langcode)
+    ->execute();
+  cache_clear_all('locale:' . $langcode, 'cache');
+  // With no translations, this removes existing JavaScript translations file.
+  _locale_rebuild_js($langcode);
+  // Remove the language.
+  db_delete('languages')
+    ->condition('language', $langcode)
+    ->execute();
+  db_update('node')
+    ->fields(array('language' => ''))
+    ->condition('language', $langcode)
+    ->execute();
+
+  _hoppinger_language_update_language_count();
+  module_invoke_all('multilingual_settings_changed');
+
+  cache_clear_all('*', 'cache_page', TRUE);
+  drupal_static_reset('language_list');
+}
+
+function _hoppinger_language_update_language_count() {
+  $enabled_languages = db_select('languages')
+    ->condition('enabled', 1)
+    ->fields('languages')
+    ->execute()
+    ->rowCount();
+  variable_set('language_count', $enabled_languages);
+}
