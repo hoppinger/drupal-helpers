@@ -1,5 +1,21 @@
 <?php
 
+function hoppinger_permissions_ensure_role($role, $weight = NULL) {
+  $properties = array(
+    'name' => $role,
+  );
+  if (isset($weight)) {
+    $properties['weight'] = $weight;  
+  }
+
+  $role = kw_itemnames_ensure(
+    'user_role', 
+    'role-' . $role,
+    $properties,
+    array()
+  );
+}
+
 function hoppinger_permissions_ensure_permissions($role, $perms = array()) {
   if (is_numeric($role)) {
     $rid = $role;
