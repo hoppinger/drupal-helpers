@@ -1,0 +1,4 @@
+name = Fields
+package = "Hoppinger: Helpers"
+
+core = 7.x
