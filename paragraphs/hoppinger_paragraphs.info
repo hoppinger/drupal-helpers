@@ -1,0 +1,6 @@
+name = Paragraphs
+package = "Hoppinger: Helpers"
+
+core = 7.x
+
+dependencies[] = paragraphs

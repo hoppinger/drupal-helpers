@@ -1,0 +1,9 @@
+<?php
+
+function hoppinger_paragraphs_ensure_bundle($name, $label) {
+  paragraphs_bundle_save((object) array(
+    'bundle' => $name,
+    'name' => $label,
+    'locked' => TRUE,
+  ));
+}
