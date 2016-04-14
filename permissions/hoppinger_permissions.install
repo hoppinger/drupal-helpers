@@ -16,23 +16,36 @@ function hoppinger_permissions_ensure_role($role, $weight = NULL) {
   );
 }
 
-function hoppinger_permissions_ensure_permissions($role, $perms = array()) {
+function _hoppinger_permissions_normalize_role($role) {
   if (is_numeric($role)) {
-    $rid = $role;
-  } else {
-    $role = kw_itemnames_ensure(
-      'user_role', 
-      'role-' . $role,
-      array(
-        'name' => $role,
-      ),
-      array()
-    );
-    $rid = $role->rid;
+    return $role;
   }
+
+  $role = kw_itemnames_ensure(
+    'user_role', 
+    'role-' . $role,
+    array(
+      'name' => $role,
+    ),
+    array()
+  );
+  
+  return $role->rid;
+}
+
+function hoppinger_permissions_ensure_permissions($role, $perms = array()) {
+  $rid = _hoppinger_permissions_normalize_role($role);
 
   if ($perms) {
     user_role_grant_permissions($rid, $perms);
+  }
+}
+
+function hoppinger_permissions_revoke_permissions($role, $perms = array()) {
+  $rid = _hoppinger_permissions_normalize_role($role);
+
+  if ($perms) {
+    user_role_revoke_permissions($rid, $perms);
   }
 }
 
